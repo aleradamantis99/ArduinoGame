@@ -2,6 +2,7 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
+#include <EEPROM.h>
 #include "Image.h"
 #define TFT_CS         9
 #define TFT_RST        10
@@ -15,7 +16,7 @@
 
 #define ACTORRAD 7
 #define BULLETRAD 3
-
+#define HISCOREADDR 24
 unsigned genRand_()
 {
   unsigned byteRand = (analogRead(0)&1) << 7;
@@ -49,9 +50,13 @@ struct Vect2d
   int y;
   /*Vect2d() = default;
   Vect2d(int x_, int y_): x(x_), y(y_){}*/
-  float module()
+  float setModule(unsigned module)
   {
-    return sqrt(x*x + y*y);
+    float currentModule = sqrt((float)(x*x + y*y));
+    float xf = ((float)x / currentModule)*(float)module;
+    float yf = ((float)y / currentModule)*(float)module;
+    x = round(xf);
+    y = round(yf);
   }
   Vect2d& operator*=(int n)
   {
@@ -222,10 +227,17 @@ void gameOver()
   tft.setCursor(0, 0);
   tft.setTextColor(ST77XX_RED);
   tft.setTextWrap(true);
-  tft.setTextSize(4);
+  tft.setTextSize(3);
 
   tft.print("Game Over\nScore:");
   tft.print(score);
+  int hiscore = EEPROM.read(HISCOREADDR);
+  if (score > hiscore || hiscore == 255)
+  {
+    EEPROM.write(HISCOREADDR, score);
+  }
+  tft.print("HiScore:");
+  tft.print(hiscore);
   delay(2000);
   reset_func();
 }
@@ -275,6 +287,12 @@ void draw_enemies()
     {
       en.speed *= -1;
     }
+  }
+  if (nEnemies == 6)
+  {
+    Entity& ensp = enemies[5];
+    ensp.speed = Vect2d{x-ensp.pos.x, y-ensp.pos.y};
+    ensp.speed.setModule(1);
   }
 }
 
@@ -364,7 +382,7 @@ void place_enemies()
     nEnemies = 6;
     enemies[0].speed = Vect2d{1, 0};
     enemies[1].speed = Vect2d{0, 2};
-    enemies[2].speed = Vect2d{3, 1};
+    enemies[2].speed = Vect2d{3, 2};
     enemies[3].speed = Vect2d{2, 0};
     enemies[4].speed = Vect2d{0, 1};
     enemies[5].speed = Vect2d{3, 3};
