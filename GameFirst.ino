@@ -288,11 +288,11 @@ void draw_enemies()
       en.speed *= -1;
     }
   }
-  if (nEnemies == 6)
+  if (nEnemies == 5)
   {
-    Entity& ensp = enemies[5];
+    Entity& ensp = enemies[4];
     ensp.speed = Vect2d{x-ensp.pos.x, y-ensp.pos.y};
-    ensp.speed.setModule(1);
+    ensp.speed.setModule(2);
   }
 }
 
@@ -379,13 +379,13 @@ void place_enemies()
   }
   else if(currentMenu == 2)
   {
-    nEnemies = 6;
+    nEnemies = 5;
     enemies[0].speed = Vect2d{1, 0};
     enemies[1].speed = Vect2d{0, 2};
     enemies[2].speed = Vect2d{3, 2};
     enemies[3].speed = Vect2d{2, 0};
     enemies[4].speed = Vect2d{0, 1};
-    enemies[5].speed = Vect2d{3, 3};
+    //enemies[5].speed = Vect2d{3, 3};
   }
   for (int i=0; i< nEnemies; i++)
   {
